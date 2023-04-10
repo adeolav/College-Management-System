@@ -11,99 +11,91 @@ from django.urls import reverse
 import datetime
 
 from .models import CustomUser, Staffs, Courses, Subjects, Students, Attendance, AttendanceReport, LeaveReportStudent, FeedBackStudent, StudentResult
- 
+
 
 def student_home(request):
 
-  student_obj = Students.objects.get(admin=request.user.id)
+    student_obj = Students.objects.get(admin=request.user.id)
 
-  total_attendance =   AttendanceReport.objects.filter(student_id=student_obj).count()
+    total_attendance = AttendanceReport.objects.filter(
+        student_id=student_obj).count()
 
-  attendance_present = AttendanceReport.objects.filter(student_id=student_obj,
+    attendance_present = AttendanceReport.objects.filter(student_id=student_obj,
 
-                                                       status=True).count()
+                                                         status=True).count()
 
-  attendance_absent =  AttendanceReport.objects.filter(student_id=student_obj,
+    attendance_absent = AttendanceReport.objects.filter(student_id=student_obj,
 
-                                                       status=False).count()
+                                                        status=False).count()
 
-  course_obj = Courses.objects.get(id=student_obj.course_id.id)
+    course_obj = Courses.objects.get(id=student_obj.course_id.id)
 
-  total_subjects = Subjects.objects.filter(course_id=course_obj).count()
+    total_subjects = Subjects.objects.filter(course_id=course_obj).count()
 
-  subject_name = []
+    subject_name = []
 
-  data_present = []
+    data_present = []
 
-  data_absent = []
+    data_absent = []
 
-  subject_data = Subjects.objects.filter(course_id=student_obj.course_id)
+    subject_data = Subjects.objects.filter(course_id=student_obj.course_id)
 
-  for subject in subject_data:
+    for subject in subject_data:
 
-    attendance = Attendance.objects.filter(subject_id=subject.id)
+        attendance = Attendance.objects.filter(subject_id=subject.id)
 
-    attendance_present_count = AttendanceReport.objects.filter(attendance_id__in=attendance,
+        attendance_present_count = AttendanceReport.objects.filter(attendance_id__in=attendance,
 
-                                                               status=True,
+                                                                   status=True,
 
-                                                               student_id=student_obj.id).count()
+                                                                   student_id=student_obj.id).count()
 
-    attendance_absent_count = AttendanceReport.objects.filter(attendance_id__in=attendance,
+        attendance_absent_count = AttendanceReport.objects.filter(attendance_id__in=attendance,
 
-                                                              status=False,
+                                                                  status=False,
 
-                                                              student_id=student_obj.id).count()
+                                                                  student_id=student_obj.id).count()
 
-    subject_name.append(subject.subject_name)
+        subject_name.append(subject.subject_name)
 
-    data_present.append(attendance_present_count)
+        data_present.append(attendance_present_count)
 
-    data_absent.append(attendance_absent_count)
+        data_absent.append(attendance_absent_count)
 
-     
+        context = {
 
-    context={
+            "total_attendance": total_attendance,
 
-        "total_attendance": total_attendance,
+            "attendance_present": attendance_present,
 
-        "attendance_present": attendance_present,
+            "attendance_absent": attendance_absent,
 
-        "attendance_absent": attendance_absent,
+            "total_subjects": total_subjects,
 
-        "total_subjects": total_subjects,
+            "subject_name": subject_name,
 
-        "subject_name": subject_name,
+            "data_present": data_present,
 
-        "data_present": data_present,
+            "data_absent": data_absent
 
-        "data_absent": data_absent
+        }
 
-    }
+        return render(request, "student_template/student_home_template.html")
 
-    return render(request, "student_template/student_home_template.html")
- 
- 
 
 def student_view_attendance(request):
 
-   
-
     # Getting Logged in Student Data
 
-    student = Students.objects.get(admin=request.user.id) 
-
-     
+    student = Students.objects.get(admin=request.user.id)
 
     # Getting Course Enrolled of LoggedIn Student
 
-    course = student.course_id 
-
-     
+    course = student.course_id
 
     # Getting the Subjects of Course Enrolled
 
-    subjects = Subjects.objects.filter(course_id=course) 
+    subjects = Subjects.objects.filter(course_id=course)
 
     context = {
 
@@ -112,8 +104,7 @@ def student_view_attendance(request):
     }
 
     return render(request, "student_template/student_view_attendance.html", context)
- 
- 
+
 
 def student_view_attendance_post(request):
 
@@ -132,31 +123,26 @@ def student_view_attendance_post(request):
         start_date = request.POST.get('start_date')
 
         end_date = request.POST.get('end_date')
- 
 
         # Parsing the date data into Python object
 
-        start_date_parse = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
+        start_date_parse = datetime.datetime.strptime(
+            start_date, '%Y-%m-%d').date()
 
-        end_date_parse = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
- 
+        end_date_parse = datetime.datetime.strptime(
+            end_date, '%Y-%m-%d').date()
 
         # Getting all the Subject Data based on Selected Subject
 
         subject_obj = Subjects.objects.get(id=subject_id)
 
-         
-
         # Getting Logged In User Data
 
         user_obj = CustomUser.objects.get(id=request.user.id)
 
-         
-
         # Getting Student Data Based on Logged in Data
 
         stud_obj = Students.objects.get(admin=user_obj)
- 
 
         # Now Accessing Attendance Data based on the Range of Date
 
@@ -175,9 +161,6 @@ def student_view_attendance_post(request):
         attendance_reports = AttendanceReport.objects.filter(attendance_id__in=attendance,
 
                                                              student_id=stud_obj)
- 
-
-         
 
         context = {
 
@@ -186,12 +169,9 @@ def student_view_attendance_post(request):
             "attendance_reports": attendance_reports
 
         }
- 
 
         return render(request, 'student_template/student_attendance_data.html', context)
 
-        
- 
 
 def student_apply_leave(request):
 
@@ -206,8 +186,7 @@ def student_apply_leave(request):
     }
 
     return render(request, 'student_template/student_apply_leave.html', context)
- 
- 
+
 
 def student_apply_leave_save(request):
 
@@ -222,7 +201,6 @@ def student_apply_leave_save(request):
         leave_date = request.POST.get('leave_date')
 
         leave_message = request.POST.get('leave_message')
- 
 
         student_obj = Students.objects.get(admin=request.user.id)
 
@@ -247,8 +225,7 @@ def student_apply_leave_save(request):
             messages.error(request, "Failed to Apply Leave")
 
             return redirect('student_apply_leave')
- 
- 
+
 
 def student_feedback(request):
 
@@ -263,8 +240,7 @@ def student_feedback(request):
     }
 
     return render(request, 'student_template/student_feedback.html', context)
- 
- 
+
 
 def student_feedback_save(request):
 
@@ -279,7 +255,6 @@ def student_feedback_save(request):
         feedback = request.POST.get('feedback_message')
 
         student_obj = Students.objects.get(admin=request.user.id)
- 
 
         try:
 
@@ -300,17 +275,15 @@ def student_feedback_save(request):
             messages.error(request, "Failed to Send Feedback.")
 
             return redirect('student_feedback')
- 
- 
+
 
 def student_profile(request):
 
     user = CustomUser.objects.get(id=request.user.id)
 
     student = Students.objects.get(admin=user)
- 
 
-    context={
+    context = {
 
         "user": user,
 
@@ -319,8 +292,7 @@ def student_profile(request):
     }
 
     return render(request, 'student_template/student_profile.html', context)
- 
- 
+
 
 def student_profile_update(request):
 
@@ -339,7 +311,6 @@ def student_profile_update(request):
         password = request.POST.get('password')
 
         address = request.POST.get('address')
- 
 
         try:
 
@@ -354,15 +325,12 @@ def student_profile_update(request):
                 customuser.set_password(password)
 
             customuser.save()
- 
 
             student = Students.objects.get(admin=customuser.id)
 
             student.address = address
 
             student.save()
-
-             
 
             messages.success(request, "Profile Updated Successfully")
 
@@ -373,8 +341,7 @@ def student_profile_update(request):
             messages.error(request, "Failed to Update Profile")
 
             return redirect('student_profile')
- 
- 
+
 
 def student_view_result(request):
 

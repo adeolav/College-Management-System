@@ -11,18 +11,15 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
 import json
- 
+
 
 from .forms import AddStudentForm, EditStudentForm
- 
+
 
 from .models import CustomUser, Staffs, Courses, Subjects, Students, SessionYearModel, FeedBackStudent, FeedBackStaffs, LeaveReportStudent, LeaveReportStaff, Attendance, AttendanceReport
- 
- 
+
 
 def admin_home(request):
-
-     
 
     all_student_count = Students.objects.all().count()
 
@@ -39,7 +36,6 @@ def admin_home(request):
     subject_count_list = []
 
     student_count_list_in_course = []
- 
 
     for course in course_all:
 
@@ -52,8 +48,6 @@ def admin_home(request):
         subject_count_list.append(subjects)
 
         student_count_list_in_course.append(students)
-
-     
 
     subject_all = Subjects.objects.all()
 
@@ -71,16 +65,13 @@ def admin_home(request):
 
         student_count_list_in_subject.append(student_count)
 
-     
-
     # For Saffs
 
-    staff_attendance_present_list=[]
+    staff_attendance_present_list = []
 
-    staff_attendance_leave_list=[]
+    staff_attendance_leave_list = []
 
-    staff_name_list=[]
- 
+    staff_name_list = []
 
     staffs = Staffs.objects.all()
 
@@ -88,7 +79,8 @@ def admin_home(request):
 
         subject_ids = Subjects.objects.filter(staff_id=staff.admin.id)
 
-        attendance = Attendance.objects.filter(subject_id__in=subject_ids).count()
+        attendance = Attendance.objects.filter(
+            subject_id__in=subject_ids).count()
 
         leaves = LeaveReportStaff.objects.filter(staff_id=staff.id,
 
@@ -99,16 +91,14 @@ def admin_home(request):
         staff_attendance_leave_list.append(leaves)
 
         staff_name_list.append(staff.admin.first_name)
- 
 
     # For Students
 
-    student_attendance_present_list=[]
+    student_attendance_present_list = []
 
-    student_attendance_leave_list=[]
+    student_attendance_leave_list = []
 
-    student_name_list=[]
- 
+    student_name_list = []
 
     students = Students.objects.all()
 
@@ -131,10 +121,8 @@ def admin_home(request):
         student_attendance_leave_list.append(leaves+absent)
 
         student_name_list.append(student.admin.first_name)
- 
- 
 
-    context={
+    context = {
 
         "all_student_count": all_student_count,
 
@@ -169,14 +157,12 @@ def admin_home(request):
     }
 
     return render(request, "hod_template/home_content.html", context)
- 
- 
+
 
 def add_staff(request):
 
     return render(request, "hod_template/add_staff_template.html")
- 
- 
+
 
 def add_staff_save(request):
 
@@ -199,7 +185,6 @@ def add_staff_save(request):
         password = request.POST.get('password')
 
         address = request.POST.get('address')
- 
 
         try:
 
@@ -228,9 +213,7 @@ def add_staff_save(request):
             messages.error(request, "Failed to Add Staff!")
 
             return redirect('add_staff')
- 
- 
- 
+
 
 def manage_staff(request):
 
@@ -243,13 +226,11 @@ def manage_staff(request):
     }
 
     return render(request, "hod_template/manage_staff_template.html", context)
- 
- 
+
 
 def edit_staff(request, staff_id):
 
     staff = Staffs.objects.get(admin=staff_id)
- 
 
     context = {
 
@@ -260,8 +241,7 @@ def edit_staff(request, staff_id):
     }
 
     return render(request, "hod_template/edit_staff_template.html", context)
- 
- 
+
 
 def edit_staff_save(request):
 
@@ -282,7 +262,6 @@ def edit_staff_save(request):
         last_name = request.POST.get('last_name')
 
         address = request.POST.get('address')
- 
 
         try:
 
@@ -300,8 +279,6 @@ def edit_staff_save(request):
 
             user.save()
 
-             
-
             # INSERTING into Staff Model
 
             staff_model = Staffs.objects.get(admin=staff_id)
@@ -309,21 +286,17 @@ def edit_staff_save(request):
             staff_model.address = address
 
             staff_model.save()
- 
 
             messages.success(request, "Staff Updated Successfully.")
 
             return redirect('/edit_staff/'+staff_id)
- 
 
         except:
 
             messages.error(request, "Failed to Update Staff.")
 
             return redirect('/edit_staff/'+staff_id)
- 
- 
- 
+
 
 def delete_staff(request, staff_id):
 
@@ -342,16 +315,12 @@ def delete_staff(request, staff_id):
         messages.error(request, "Failed to Delete Staff.")
 
         return redirect('manage_staff')
- 
- 
- 
- 
+
 
 def add_course(request):
 
     return render(request, "hod_template/add_course_template.html")
- 
- 
+
 
 def add_course_save(request):
 
@@ -380,8 +349,7 @@ def add_course_save(request):
             messages.error(request, "Failed to Add Course!")
 
             return redirect('add_course')
- 
- 
+
 
 def manage_course(request):
 
@@ -394,8 +362,7 @@ def manage_course(request):
     }
 
     return render(request, 'hod_template/manage_course_template.html', context)
- 
- 
+
 
 def edit_course(request, course_id):
 
@@ -410,8 +377,7 @@ def edit_course(request, course_id):
     }
 
     return render(request, 'hod_template/edit_course_template.html', context)
- 
- 
+
 
 def edit_course_save(request):
 
@@ -424,7 +390,6 @@ def edit_course_save(request):
         course_id = request.POST.get('course_id')
 
         course_name = request.POST.get('course')
- 
 
         try:
 
@@ -433,20 +398,17 @@ def edit_course_save(request):
             course.course_name = course_name
 
             course.save()
- 
 
             messages.success(request, "Course Updated Successfully.")
 
             return redirect('/edit_course/'+course_id)
- 
 
         except:
 
             messages.error(request, "Failed to Update Course.")
 
             return redirect('/edit_course/'+course_id)
- 
- 
+
 
 def delete_course(request, course_id):
 
@@ -465,8 +427,7 @@ def delete_course(request, course_id):
         messages.error(request, "Failed to Delete Course.")
 
         return redirect('manage_course')
- 
- 
+
 
 def manage_session(request):
 
@@ -479,14 +440,12 @@ def manage_session(request):
     }
 
     return render(request, "hod_template/manage_session_template.html", context)
- 
- 
+
 
 def add_session(request):
 
     return render(request, "hod_template/add_session_template.html")
- 
- 
+
 
 def add_session_save(request):
 
@@ -501,7 +460,6 @@ def add_session_save(request):
         session_start_year = request.POST.get('session_start_year')
 
         session_end_year = request.POST.get('session_end_year')
- 
 
         try:
 
@@ -520,8 +478,7 @@ def add_session_save(request):
             messages.error(request, "Failed to Add Session Year")
 
             return redirect("add_session")
- 
- 
+
 
 def edit_session(request, session_id):
 
@@ -534,8 +491,7 @@ def edit_session(request, session_id):
     }
 
     return render(request, "hod_template/edit_session_template.html", context)
- 
- 
+
 
 def edit_session_save(request):
 
@@ -552,7 +508,6 @@ def edit_session_save(request):
         session_start_year = request.POST.get('session_start_year')
 
         session_end_year = request.POST.get('session_end_year')
- 
 
         try:
 
@@ -563,7 +518,6 @@ def edit_session_save(request):
             session_year.session_end_year = session_end_year
 
             session_year.save()
- 
 
             messages.success(request, "Session Year Updated Successfully.")
 
@@ -574,8 +528,7 @@ def edit_session_save(request):
             messages.error(request, "Failed to Update Session Year.")
 
             return redirect('/edit_session/'+session_id)
- 
- 
+
 
 def delete_session(request, session_id):
 
@@ -594,8 +547,7 @@ def delete_session(request, session_id):
         messages.error(request, "Failed to Delete Session.")
 
         return redirect('manage_session')
- 
- 
+
 
 def add_student(request):
 
@@ -608,10 +560,7 @@ def add_student(request):
     }
 
     return render(request, 'hod_template/add_student_template.html', context)
- 
- 
- 
- 
+
 
 def add_student_save(request):
 
@@ -624,7 +573,6 @@ def add_student_save(request):
     else:
 
         form = AddStudentForm(request.POST, request.FILES)
- 
 
         if form.is_valid():
 
@@ -645,9 +593,6 @@ def add_student_save(request):
             course_id = form.cleaned_data['course_id']
 
             gender = form.cleaned_data['gender']
- 
-
-             
 
             if len(request.FILES) != 0:
 
@@ -662,8 +607,6 @@ def add_student_save(request):
             else:
 
                 profile_pic_url = None
- 
- 
 
             try:
 
@@ -680,17 +623,15 @@ def add_student_save(request):
                                                       user_type=3)
 
                 user.students.address = address
- 
 
                 course_obj = Courses.objects.get(id=course_id)
 
                 user.students.course_id = course_obj
- 
 
-                session_year_obj = SessionYearModel.objects.get(id=session_year_id)
+                session_year_obj = SessionYearModel.objects.get(
+                    id=session_year_id)
 
                 user.students.session_year_id = session_year_obj
- 
 
                 user.students.gender = gender
 
@@ -711,8 +652,7 @@ def add_student_save(request):
         else:
 
             return redirect('add_student')
- 
- 
+
 
 def manage_student(request):
 
@@ -725,23 +665,17 @@ def manage_student(request):
     }
 
     return render(request, 'hod_template/manage_student_template.html', context)
- 
- 
+
 
 def edit_student(request, student_id):
-
-   
 
     # Adding Student ID into Session Variable
 
     request.session['student_id'] = student_id
- 
 
     student = Students.objects.get(admin=student_id)
 
     form = EditStudentForm()
-
-     
 
     # Filling the form with Data from Database
 
@@ -760,7 +694,6 @@ def edit_student(request, student_id):
     form.fields['gender'].initial = student.gender
 
     form.fields['session_year_id'].initial = student.session_year_id.id
- 
 
     context = {
 
@@ -773,8 +706,7 @@ def edit_student(request, student_id):
     }
 
     return render(request, "hod_template/edit_student_template.html", context)
- 
- 
+
 
 def edit_student_save(request):
 
@@ -789,7 +721,6 @@ def edit_student_save(request):
         if student_id == None:
 
             return redirect('/manage_student')
- 
 
         form = EditStudentForm(request.POST, request.FILES)
 
@@ -810,7 +741,6 @@ def edit_student_save(request):
             gender = form.cleaned_data['gender']
 
             session_year_id = form.cleaned_data['session_year_id']
- 
 
             # Getting Profile Pic first
 
@@ -831,7 +761,6 @@ def edit_student_save(request):
             else:
 
                 profile_pic_url = None
- 
 
             try:
 
@@ -848,24 +777,21 @@ def edit_student_save(request):
                 user.username = username
 
                 user.save()
- 
 
                 # Then Update Students Table
 
                 student_model = Students.objects.get(admin=student_id)
 
                 student_model.address = address
- 
 
                 course = Courses.objects.get(id=course_id)
 
                 student_model.course_id = course
- 
 
-                session_year_obj = SessionYearModel.objects.get(id=session_year_id)
+                session_year_obj = SessionYearModel.objects.get(
+                    id=session_year_id)
 
                 student_model.session_year_id = session_year_obj
- 
 
                 student_model.gender = gender
 
@@ -878,7 +804,6 @@ def edit_student_save(request):
                 # Delete student_id SESSION after the data is updated
 
                 del request.session['student_id']
- 
 
                 messages.success(request, "Student Updated Successfully!")
 
@@ -893,8 +818,7 @@ def edit_student_save(request):
         else:
 
             return redirect('/edit_student/'+student_id)
- 
- 
+
 
 def delete_student(request, student_id):
 
@@ -913,8 +837,7 @@ def delete_student(request, student_id):
         messages.error(request, "Failed to Delete Student.")
 
         return redirect('manage_student')
- 
- 
+
 
 def add_subject(request):
 
@@ -931,9 +854,7 @@ def add_subject(request):
     }
 
     return render(request, 'hod_template/add_subject_template.html', context)
- 
- 
- 
+
 
 def add_subject_save(request):
 
@@ -946,18 +867,14 @@ def add_subject_save(request):
     else:
 
         subject_name = request.POST.get('subject')
- 
 
         course_id = request.POST.get('course')
 
         course = Courses.objects.get(id=course_id)
 
-         
-
         staff_id = request.POST.get('staff')
 
         staff = CustomUser.objects.get(id=staff_id)
- 
 
         try:
 
@@ -978,8 +895,7 @@ def add_subject_save(request):
             messages.error(request, "Failed to Add Subject!")
 
             return redirect('add_subject')
- 
- 
+
 
 def manage_subject(request):
 
@@ -992,8 +908,7 @@ def manage_subject(request):
     }
 
     return render(request, 'hod_template/manage_subject_template.html', context)
- 
- 
+
 
 def edit_subject(request, subject_id):
 
@@ -1016,8 +931,7 @@ def edit_subject(request, subject_id):
     }
 
     return render(request, 'hod_template/edit_subject_template.html', context)
- 
- 
+
 
 def edit_subject_save(request):
 
@@ -1034,37 +948,28 @@ def edit_subject_save(request):
         course_id = request.POST.get('course')
 
         staff_id = request.POST.get('staff')
- 
 
         try:
 
             subject = Subjects.objects.get(id=subject_id)
 
             subject.subject_name = subject_name
- 
 
             course = Courses.objects.get(id=course_id)
 
             subject.course_id = course
- 
 
             staff = CustomUser.objects.get(id=staff_id)
 
             subject.staff_id = staff
 
-             
-
             subject.save()
- 
 
             messages.success(request, "Subject Updated Successfully.")
 
-             
-
             return HttpResponseRedirect(reverse("edit_subject",
 
-                                                kwargs={"subject_id":subject_id}))
- 
+                                                kwargs={"subject_id": subject_id}))
 
         except:
 
@@ -1072,12 +977,8 @@ def edit_subject_save(request):
 
             return HttpResponseRedirect(reverse("edit_subject",
 
-                                                kwargs={"subject_id":subject_id}))
+                                                kwargs={"subject_id": subject_id}))
 
-            
- 
- 
- 
 
 def delete_subject(request, subject_id):
 
@@ -1096,10 +997,9 @@ def delete_subject(request, subject_id):
         messages.error(request, "Failed to Delete Subject.")
 
         return redirect('manage_subject')
- 
- 
-@csrf_exempt
 
+
+@csrf_exempt
 def check_email_exist(request):
 
     email = request.POST.get("email")
@@ -1113,10 +1013,9 @@ def check_email_exist(request):
     else:
 
         return HttpResponse(False)
- 
- 
-@csrf_exempt
 
+
+@csrf_exempt
 def check_username_exist(request):
 
     username = request.POST.get("username")
@@ -1130,9 +1029,7 @@ def check_username_exist(request):
     else:
 
         return HttpResponse(False)
- 
- 
- 
+
 
 def student_feedback_message(request):
 
@@ -1145,16 +1042,14 @@ def student_feedback_message(request):
     }
 
     return render(request, 'hod_template/student_feedback_template.html', context)
- 
- 
-@csrf_exempt
 
+
+@csrf_exempt
 def student_feedback_message_reply(request):
 
     feedback_id = request.POST.get('id')
 
     feedback_reply = request.POST.get('reply')
- 
 
     try:
 
@@ -1165,13 +1060,11 @@ def student_feedback_message_reply(request):
         feedback.save()
 
         return HttpResponse("True")
- 
 
     except:
 
         return HttpResponse("False")
- 
- 
+
 
 def staff_feedback_message(request):
 
@@ -1184,16 +1077,14 @@ def staff_feedback_message(request):
     }
 
     return render(request, 'hod_template/staff_feedback_template.html', context)
- 
- 
-@csrf_exempt
 
+
+@csrf_exempt
 def staff_feedback_message_reply(request):
 
     feedback_id = request.POST.get('id')
 
     feedback_reply = request.POST.get('reply')
- 
 
     try:
 
@@ -1204,13 +1095,11 @@ def staff_feedback_message_reply(request):
         feedback.save()
 
         return HttpResponse("True")
- 
 
     except:
 
         return HttpResponse("False")
- 
- 
+
 
 def student_leave_view(request):
 
@@ -1223,7 +1112,7 @@ def student_leave_view(request):
     }
 
     return render(request, 'hod_template/student_leave_view.html', context)
- 
+
 
 def student_leave_approve(request, leave_id):
 
@@ -1234,8 +1123,7 @@ def student_leave_approve(request, leave_id):
     leave.save()
 
     return redirect('student_leave_view')
- 
- 
+
 
 def student_leave_reject(request, leave_id):
 
@@ -1246,8 +1134,7 @@ def student_leave_reject(request, leave_id):
     leave.save()
 
     return redirect('student_leave_view')
- 
- 
+
 
 def staff_leave_view(request):
 
@@ -1260,8 +1147,7 @@ def staff_leave_view(request):
     }
 
     return render(request, 'hod_template/staff_leave_view.html', context)
- 
- 
+
 
 def staff_leave_approve(request, leave_id):
 
@@ -1272,8 +1158,7 @@ def staff_leave_approve(request, leave_id):
     leave.save()
 
     return redirect('staff_leave_view')
- 
- 
+
 
 def staff_leave_reject(request, leave_id):
 
@@ -1284,8 +1169,7 @@ def staff_leave_reject(request, leave_id):
     leave.save()
 
     return redirect('staff_leave_view')
- 
- 
+
 
 def admin_view_attendance(request):
 
@@ -1302,105 +1186,88 @@ def admin_view_attendance(request):
     }
 
     return render(request, "hod_template/admin_view_attendance.html", context)
- 
- 
+
+
 @csrf_exempt
-
 def admin_get_attendance_dates(request):
-
-    
 
     subject_id = request.POST.get("subject")
 
     session_year = request.POST.get("session_year_id")
- 
 
     # Students enroll to Course, Course has Subjects
 
     # Getting all data from subject model based on subject_id
 
     subject_model = Subjects.objects.get(id=subject_id)
- 
 
     session_model = SessionYearModel.objects.get(id=session_year)
 
     attendance = Attendance.objects.filter(subject_id=subject_model,
 
                                            session_year_id=session_model)
- 
 
     # Only Passing Student Id and Student Name Only
 
     list_data = []
- 
 
     for attendance_single in attendance:
 
-        data_small={"id":attendance_single.id,
+        data_small = {"id": attendance_single.id,
 
-                    "attendance_date":str(attendance_single.attendance_date),
+                      "attendance_date": str(attendance_single.attendance_date),
 
-                    "session_year_id":attendance_single.session_year_id.id}
+                      "session_year_id": attendance_single.session_year_id.id}
 
         list_data.append(data_small)
- 
 
     return JsonResponse(json.dumps(list_data),
 
                         content_type="application/json",
 
                         safe=False)
- 
- 
+
+
 @csrf_exempt
-
 def admin_get_attendance_student(request):
-
-   
 
     # Getting Values from Ajax POST 'Fetch Student'
 
     attendance_date = request.POST.get('attendance_date')
 
     attendance = Attendance.objects.get(id=attendance_date)
- 
 
     attendance_data = AttendanceReport.objects.filter(attendance_id=attendance)
 
     # Only Passing Student Id and Student Name Only
 
     list_data = []
- 
 
     for student in attendance_data:
 
-        data_small={"id":student.student_id.admin.id,
+        data_small = {"id": student.student_id.admin.id,
 
-                    "name":student.student_id.admin.first_name+" "+student.student_id.admin.last_name,
+                      "name": student.student_id.admin.first_name+" "+student.student_id.admin.last_name,
 
-                    "status":student.status}
+                      "status": student.status}
 
         list_data.append(data_small)
- 
 
     return JsonResponse(json.dumps(list_data), content_type="application/json", safe=False)
- 
- 
+
 
 def admin_profile(request):
 
     user = CustomUser.objects.get(id=request.user.id)
- 
 
-    context={
+    context = {
 
         "user": user
 
     }
 
     return render(request, 'hod_template/admin_profile.html', context)
- 
- 
+
 
 def admin_profile_update(request):
 
@@ -1417,7 +1284,6 @@ def admin_profile_update(request):
         last_name = request.POST.get('last_name')
 
         password = request.POST.get('password')
- 
 
         try:
 
@@ -1443,15 +1309,11 @@ def admin_profile_update(request):
 
             return redirect('admin_profile')
 
-     
- 
- 
 
 def staff_profile(request):
 
     pass
- 
- 
+
 
 def student_profile(requtest):
 
